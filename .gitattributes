@@ -1,0 +1,9 @@
+# Plotly is a third-party bundle, not our code — keep it out of the language stats
+site/vendor/**            linguist-vendored
+# the JSON is emitted by tools/build_data.py, not hand-edited
+site/data/*.json          linguist-generated
+site/data/*.json          -diff
+
+* text=auto eol=lf
+*.png     binary
+*.svg     text

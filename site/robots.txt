@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gevaertlab.github.io/chexboard-cxr-leaderboard/sitemap.xml

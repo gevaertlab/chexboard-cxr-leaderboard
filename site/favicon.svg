@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CheXboard">
+  <title>CheXboard</title>
+  <rect width="64" height="64" rx="14" fill="#0b6e99"/>
+  <!-- the operating-point threshold the benchmark scores at -->
+  <path d="M10 22 H54" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="4.5 3.5"
+        stroke-linecap="round" opacity=".45"/>
+  <g fill="#ffffff">
+    <rect x="13" y="34" width="10" height="18" rx="2.5" opacity=".55"/>
+    <rect x="27" y="27" width="10" height="25" rx="2.5" opacity=".78"/>
+    <rect x="41" y="16" width="10" height="36" rx="2.5"/>
+  </g>
+</svg>

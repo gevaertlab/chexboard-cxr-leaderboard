@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Page not found — CheXboard</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/chexboard-cxr-leaderboard/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/chexboard-cxr-leaderboard/style.css" />
+</head>
+<body>
+<div class="boot">
+  <h1 style="font-size:22px;margin:0 0 10px;color:#1a1d21">Page not found</h1>
+  <p class="boot-msg">
+    There is nothing at this address. The leaderboard lives at
+    <a id="home" href="/chexboard-cxr-leaderboard/">the site root</a>.
+  </p>
+</div>
+<script>
+  // works whether the site is served from /<repo>/ (GitHub Pages project site)
+  // or from the domain root (custom domain)
+  var seg = location.pathname.split("/")[1];
+  document.getElementById("home").href =
+    (seg && location.hostname.endsWith("github.io")) ? "/" + seg + "/" : "/";
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+cff-version: 1.2.0
+# `message` and `type` are required by the CFF 1.2.0 schema; without `message`
+# GitHub's "Cite this repository" widget refuses to render this file.
+message: >-
+  If you use CheXboard, please cite the accompanying arXiv preprint
+  (arXiv:2505.16027; see `preferred-citation` below).
+type: software
+title: >-
+  CheXboard: an interactive leaderboard for Benchmarking Classification Tasks of
+  Chest X-ray AI Across Multinational Public and Private Datasets
+authors:
+  - family-names: Xu
+    given-names: Qinmei
+  - family-names: Li
+    given-names: Yiheng
+  - family-names: Zhao
+    given-names: Wenya
+  - family-names: Zhao
+    given-names: Zihao
+  - family-names: Xu
+    given-names: Chuanjun
+  - family-names: Er
+    given-names: Ahmet Gorkem
+  - family-names: Zhan
+    given-names: Xianghao
+  - family-names: Dashevsky
+    given-names: Brittany
+  - family-names: Alawad
+    given-names: Mohammed
+  - name-particle: von der
+    family-names: Stück
+    given-names: Marc
+  - family-names: Gazibarić
+    given-names: Marvin
+  - family-names: Truhn
+    given-names: Daniel
+  - family-names: Shibata
+    given-names: Shunsuke
+  - family-names: Horino
+    given-names: Ryosuke
+  - family-names: Ito
+    given-names: Mio
+  - family-names: Hiwatashi
+    given-names: Akio
+  - family-names: Li
+    given-names: Suyu
+  - family-names: Yang
+    given-names: Mengya
+  - family-names: Liu
+    given-names: Ya
+  - family-names: Sun
+    given-names: Zhiyuan
+  - family-names: Zhou
+    given-names: Changsheng
+  - family-names: Itakura
+    given-names: Haruka
+  - family-names: Li
+    given-names: Xiao
+  - family-names: Gevaert
+    given-names: Olivier
+version: 1.1.0
+date-released: "2026-10-23"
+license: Apache-2.0
+repository-code: https://github.com/gevaertlab/chexboard-cxr-leaderboard
+url: https://gevaertlab.github.io/chexboard-cxr-leaderboard/
+abstract: >-
+  An interactive static leaderboard for a benchmark of 10 chest X-ray artificial
+  intelligence models across 12 multinational cohorts (7 public, 5 private).
+  Results can be filtered by model, region, cohort, finding, task category and
+  age band, and read as a ranked table or as ranking, heatmap, model-versus-model
+  and per-category charts. Every number is the equal-weight-per-finding
+  aggregation reported in the accompanying article, with percentile bootstrap 95%
+  confidence intervals.
+keywords:
+  - chest X-ray
+  - medical imaging
+  - benchmarking
+  - external validation
+  - foundation models
+  - leaderboard
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Xu
+      given-names: Qinmei
+    - family-names: Li
+      given-names: Yiheng
+    - family-names: Zhao
+      given-names: Wenya
+    - family-names: Zhao
+      given-names: Zihao
+    - family-names: Xu
+      given-names: Chuanjun
+    - family-names: Er
+      given-names: Ahmet Gorkem
+    - family-names: Zhan
+      given-names: Xianghao
+    - family-names: Dashevsky
+      given-names: Brittany
+    - family-names: Alawad
+      given-names: Mohammed
+    - name-particle: von der
+      family-names: Stück
+      given-names: Marc
+    - family-names: Gazibarić
+      given-names: Marvin
+    - family-names: Truhn
+      given-names: Daniel
+    - family-names: Shibata
+      given-names: Shunsuke
+    - family-names: Horino
+      given-names: Ryosuke
+    - family-names: Ito
+      given-names: Mio
+    - family-names: Hiwatashi
+      given-names: Akio
+    - family-names: Li
+      given-names: Suyu
+    - family-names: Yang
+      given-names: Mengya
+    - family-names: Liu
+      given-names: Ya
+    - family-names: Sun
+      given-names: Zhiyuan
+    - family-names: Zhou
+      given-names: Changsheng
+    - family-names: Itakura
+      given-names: Haruka
+    - family-names: Li
+      given-names: Xiao
+    - family-names: Gevaert
+      given-names: Olivier
+  title: "Benchmarking Classification Tasks of Chest X-ray AI Across Multinational Public and Private Datasets: a retrospective diagnostic accuracy study"
+  journal: arXiv
+  year: 2025
+  doi: 10.48550/arXiv.2505.16027
+  url: https://arxiv.org/abs/2505.16027

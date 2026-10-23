@@ -1,0 +1,482 @@
+{
+  "provenance": {
+    "source": {
+      "path": "scripts/00_Manuscript_Results_Generation/output/summary/summary_long.parquet",
+      "bytes": 1130977,
+      "mtime": "2026-06-23T22:08:07+00:00",
+      "sha1": "b7d955a4803cf43565007bf302d719517eafae00"
+    },
+    "git_rev": "51692f6",
+    "built_at": "2026-06-23T22:08:42+00:00",
+    "n_rows": 22559,
+    "builder": "build_data.py"
+  },
+  "metrics": [
+    {
+      "key": "auroc",
+      "label": "AUROC",
+      "short": "AUROC",
+      "desc": "Area under the ROC curve.",
+      "direction": "up",
+      "range": [
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "key": "auprc",
+      "label": "AUPRC",
+      "short": "AUPRC",
+      "desc": "Area under the precision-recall curve (average precision).",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "key": "sens_at_95spec",
+      "label": "Sensitivity @ 95% specificity",
+      "short": "Sens@95Spec",
+      "desc": "Sensitivity at the operating point where specificity is at least 95%.",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "key": "spec_at_95sens",
+      "label": "Specificity @ 95% sensitivity",
+      "short": "Spec@95Sens",
+      "desc": "Specificity at the operating point where sensitivity is at least 95% (screening-style).",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "key": "ppv_at_95sens",
+      "label": "PPV @ 95% sensitivity",
+      "short": "PPV@95Sens",
+      "desc": "Positive predictive value at the >=95%-sensitivity operating point.",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "key": "npv_at_95sens",
+      "label": "NPV @ 95% sensitivity",
+      "short": "NPV@95Sens",
+      "desc": "Negative predictive value at the >=95%-sensitivity operating point.",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "key": "sensitivity",
+      "label": "Sensitivity (Youden)",
+      "short": "Sensitivity",
+      "desc": "Sensitivity at the Youden-J operating point. Available for binary-output models.",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "key": "specificity",
+      "label": "Specificity (Youden)",
+      "short": "Specificity",
+      "desc": "Specificity at the Youden-J operating point. Available for binary-output models.",
+      "direction": "up",
+      "range": [
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "models": [
+    {
+      "key": "MAVL",
+      "official": "MAVL",
+      "type": "VLM",
+      "citation": "Phan et al., CVPR 2024",
+      "color": "#0072B2",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "MedKLIP",
+      "official": "MedKLIP",
+      "type": "VLM",
+      "citation": "Wu et al., ICCV 2023",
+      "color": "#D55E00",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "CheXzero",
+      "official": "CheXzero",
+      "type": "VLM",
+      "citation": "Tiu et al., Nat. Biomed. Eng. 2022",
+      "color": "#56B4E9",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "PsPG",
+      "official": "PsPG",
+      "type": "VLM",
+      "citation": "Ye et al., PRCV 2024",
+      "color": "#F0E442",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "BioViL-T",
+      "official": "BioViL-T",
+      "type": "VLM",
+      "citation": "Bannur et al., CVPR 2023",
+      "color": "#999999",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "DenseNet",
+      "official": "DenseNet-121",
+      "type": "CNN",
+      "citation": "Cohen et al. (TorchXRayVision), MIDL 2022",
+      "color": "#009E73",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "Resnet",
+      "official": "ResNet-50",
+      "type": "CNN",
+      "citation": "Cohen et al. (TorchXRayVision), MIDL 2022",
+      "color": "#E69F00",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "XRayDar",
+      "official": "X-Raydar",
+      "type": "CNN",
+      "citation": "Dyer et al., Lancet Digit. Health 2023",
+      "color": "#8A9BA8",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "CheXagent-AutoGluon",
+      "official": "CheXagent-AG",
+      "type": "GEN+",
+      "citation": "Chen et al. 2024 + AutoGluon booster",
+      "color": "#CC79A7",
+      "is_binary": false,
+      "metrics": [
+        "auprc",
+        "auroc",
+        "npv_at_95sens",
+        "ppv_at_95sens",
+        "sens_at_95spec",
+        "sensitivity",
+        "spec_at_95sens",
+        "specificity"
+      ]
+    },
+    {
+      "key": "CheXagent",
+      "official": "CheXagent",
+      "type": "GEN",
+      "citation": "Chen et al., arXiv:2401.12208 (2024)",
+      "color": "#666666",
+      "is_binary": true,
+      "metrics": [
+        "sensitivity",
+        "specificity"
+      ]
+    }
+  ],
+  "datasets": [
+    {
+      "name": "Nagoya",
+      "region": "Asia",
+      "country": "Japan",
+      "scope": "Private",
+      "n": 1201,
+      "n_tasks": 16
+    },
+    {
+      "name": "Jinling",
+      "region": "China",
+      "country": "China",
+      "scope": "Private",
+      "n": 161056,
+      "n_tasks": 36
+    },
+    {
+      "name": "Nanjing Multi-Hospital",
+      "region": "China",
+      "country": "China",
+      "scope": "Private",
+      "n": 1344,
+      "n_tasks": 4
+    },
+    {
+      "name": "TAIX Ray",
+      "region": "Europe",
+      "country": "Germany",
+      "scope": "Private",
+      "n": 211414,
+      "n_tasks": 11
+    },
+    {
+      "name": "Thorax XR",
+      "region": "Europe",
+      "country": "Germany",
+      "scope": "Private",
+      "n": 5216,
+      "n_tasks": 14
+    },
+    {
+      "name": "VinDr-CXR",
+      "region": "Asia",
+      "country": "Vietnam",
+      "scope": "Public",
+      "n": 3000,
+      "n_tasks": 14
+    },
+    {
+      "name": "PadChest",
+      "region": "Europe",
+      "country": "Spain",
+      "scope": "Public",
+      "n": 62838,
+      "n_tasks": 28
+    },
+    {
+      "name": "CheXpert",
+      "region": "North America",
+      "country": "USA",
+      "scope": "Public",
+      "n": 403,
+      "n_tasks": 13
+    },
+    {
+      "name": "ChestX-ray14 (Google)",
+      "region": "North America",
+      "country": "USA",
+      "scope": "Public",
+      "n": 1695,
+      "n_tasks": 4
+    },
+    {
+      "name": "IU-Xray",
+      "region": "North America",
+      "country": "USA",
+      "scope": "Public",
+      "n": 2561,
+      "n_tasks": 18
+    },
+    {
+      "name": "MIDRC-RICORD-1C",
+      "region": "North America",
+      "country": "USA",
+      "scope": "Public",
+      "n": 6269,
+      "n_tasks": 2
+    },
+    {
+      "name": "MIMIC-CXR",
+      "region": "North America",
+      "country": "USA",
+      "scope": "Public",
+      "n": 1993,
+      "n_tasks": 13
+    }
+  ],
+  "regions": [
+    "Asia",
+    "China",
+    "Europe",
+    "North America"
+  ],
+  "strata": [
+    {
+      "key": "overall",
+      "label": "Overall"
+    },
+    {
+      "key": "<18",
+      "label": "Age <18"
+    },
+    {
+      "key": "18-65",
+      "label": "Age 18\u201365"
+    },
+    {
+      "key": "65+",
+      "label": "Age 65+"
+    }
+  ],
+  "category_schemes": {
+    "anatomy": {
+      "label": "Anatomical system",
+      "order": [
+        "Pulmonary",
+        "Cardiovascular & Mediastinal",
+        "Pleural & Skeletal",
+        "Medical Devices & Diaphragmatic Abnormalities"
+      ]
+    },
+    "extent": {
+      "label": "Spatial extent",
+      "order": [
+        "Diffuse",
+        "Regional",
+        "Focal"
+      ]
+    },
+    "prevalence": {
+      "label": "Prevalence (<5% = rare)",
+      "order": [
+        "Common",
+        "Rare"
+      ]
+    }
+  },
+  "task_prevalence": {
+    "Non-pulmonary Mass": 0.0004,
+    "Incomplete Expansion of the Lung": 0.0012,
+    "Pulmonary Arterial Hypertension": 0.0017,
+    "Bone Destruction": 0.0034,
+    "Pneumoperitoneum": 0.0043,
+    "Flattened Diaphragm": 0.005,
+    "Degeneration": 0.0057,
+    "Tuberculosis": 0.0064,
+    "Tube": 0.0091,
+    "Chronic Bronchitis": 0.0094,
+    "Hernia": 0.0104,
+    "Bronchiectasis": 0.0138,
+    "Hemidiaphragm Elevation": 0.0145,
+    "Fibrosis": 0.0209,
+    "Subcutaneous Emphysema": 0.0262,
+    "Lesion": 0.0313,
+    "Costophrenic Angle Blunting": 0.0341,
+    "Mass": 0.0356,
+    "Air Trapping": 0.0365,
+    "Pleural Other": 0.0367,
+    "Scoliosis": 0.0382,
+    "Healed tuberculosis": 0.0394,
+    "Ground glass opacity": 0.0394,
+    "Parenchymal Band": 0.0435,
+    "Aortic enlargement": 0.0436,
+    "Hilar Enlargement": 0.0459,
+    "Calcification": 0.0463,
+    "Pneumothorax": 0.0526,
+    "Calcified Granuloma": 0.0574,
+    "ILD": 0.0591,
+    "Granuloma": 0.0643,
+    "Emphysema": 0.0689,
+    "Aortic Elongation": 0.0819,
+    "Peripherally Inserted Central Catheter (PICC)": 0.082,
+    "Nodule/Mass": 0.0925,
+    "Nodule": 0.0952,
+    "Consolidation": 0.0962,
+    "Lung Lesion": 0.1008,
+    "Infiltration": 0.1288,
+    "Pneumonia": 0.1452,
+    "Normal": 0.1478,
+    "Fracture": 0.159,
+    "Pleural thickening": 0.1668,
+    "Enlarged Cardiomediastinum": 0.1694,
+    "Edema": 0.185,
+    "Cardiomegaly": 0.2108,
+    "Aortic atheromatosis": 0.2307,
+    "Pleural effusion": 0.2482,
+    "COVID-19 pneumonia": 0.2618,
+    "Support devices": 0.2967,
+    "Atelectasis": 0.2996,
+    "Lung Opacity": 0.4479
+  }
+}

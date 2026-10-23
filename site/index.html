@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CheXboard — Chest X-ray Model Leaderboard</title>
+<meta name="description" content="An interactive leaderboard of chest X-ray AI models evaluated on 12 public and private cohorts across 4 world regions. Compare AUROC, AUPRC and operating-point metrics per finding, cohort and age band, with bootstrap 95% confidence intervals." />
+<meta name="author" content="Gevaert Lab, Stanford University School of Medicine" />
+<meta name="theme-color" content="#0b6e99" />
+<link rel="canonical" href="https://gevaertlab.github.io/chexboard-cxr-leaderboard/" />
+
+<!-- social preview -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="CheXboard" />
+<meta property="og:title" content="CheXboard — Chest X-ray Model Leaderboard" />
+<meta property="og:description" content="Ten chest X-ray AI models, twelve public and private cohorts, four world regions — compared per finding with bootstrap 95% CIs." />
+<meta property="og:url" content="https://gevaertlab.github.io/chexboard-cxr-leaderboard/" />
+<meta property="og:image" content="https://gevaertlab.github.io/chexboard-cxr-leaderboard/assets/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="CheXboard — Chest X-ray Model Leaderboard" />
+<meta name="twitter:description" content="Ten chest X-ray AI models, twelve public and private cohorts, four world regions — compared per finding with bootstrap 95% CIs." />
+<meta name="twitter:image" content="https://gevaertlab.github.io/chexboard-cxr-leaderboard/assets/og-image.png" />
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="alternate icon" href="favicon.png" type="image/png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+<link rel="stylesheet" href="style.css" />
+<!-- without JS the app never boots, so don't leave a spinner turning forever -->
+<noscript><style>.boot { display: none; }</style></noscript>
+<script src="vendor/plotly.min.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to leaderboard</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <a class="brand-logo" href="https://med.stanford.edu/" target="_blank" rel="noopener">
+        <img src="assets/som_horiz.png" alt="Stanford University School of Medicine" />
+      </a>
+      <h1>CheXboard <span class="h1-sub">Chest&nbsp;X-ray Model Leaderboard</span></h1>
+      <p class="subtitle">Cross-institutional benchmark of foundation &amp; supervised classifiers across
+        public and private cohorts. Point estimates with bootstrap 95% CIs.</p>
+    </div>
+    <div class="brand-side">
+      <nav class="topnav" id="topnav" aria-label="Site links"><!-- links injected --></nav>
+      <div class="brand-meta" id="brand-meta"><!-- counts injected --></div>
+    </div>
+  </div>
+</header>
+
+<noscript>
+  <p class="banner">This leaderboard is an interactive application and needs JavaScript enabled.
+    The underlying numbers are also available as plain JSON in
+    <code>data/leaderboard.json</code> and <code>data/meta.json</code>.</p>
+</noscript>
+
+<div class="boot" id="boot" role="status" aria-live="polite">
+  <div class="boot-spin" aria-hidden="true"></div>
+  <p class="boot-msg" id="boot-msg">Loading benchmark data…</p>
+</div>
+
+<div class="layout hidden" id="layout">
+  <!-- ───────────────────────── control panel ───────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-scroll">
+
+      <section class="ctl">
+        <label class="ctl-h">Metric</label>
+        <div class="seg" id="metric-seg"></div>
+        <p class="metric-desc" id="metric-desc"></p>
+      </section>
+
+      <section class="ctl">
+        <label class="ctl-h">Population</label>
+        <div class="seg" id="stratum-seg"></div>
+      </section>
+
+      <section class="ctl">
+        <label class="ctl-h">Aggregation
+          <span class="info" title="How per-(dataset,pathology) cells are pooled into one number per model.">?</span>
+        </label>
+        <div class="seg" id="agg-seg"></div>
+      </section>
+
+      <section class="ctl">
+        <div class="ctl-h-row">
+          <label class="ctl-h">Models</label>
+          <button class="mini" data-all="models">all</button>
+          <button class="mini" data-none="models">none</button>
+        </div>
+        <div class="chips" id="models-chips"></div>
+      </section>
+
+      <section class="ctl">
+        <div class="ctl-h-row">
+          <label class="ctl-h">Region</label>
+          <button class="mini" data-all="regions">all</button>
+          <button class="mini" data-none="regions">none</button>
+        </div>
+        <div class="chips" id="regions-chips"></div>
+      </section>
+
+      <section class="ctl">
+        <div class="ctl-h-row">
+          <label class="ctl-h">Datasets</label>
+          <button class="mini" data-all="datasets">all</button>
+          <button class="mini" data-none="datasets">none</button>
+        </div>
+        <div class="scope-toggles" id="scope-toggles">
+          <button class="scope-btn" data-scope="Public">All public</button>
+          <button class="scope-btn" data-scope="Private">All private</button>
+        </div>
+        <div class="chips" id="datasets-chips"></div>
+      </section>
+
+      <section class="ctl">
+        <label class="ctl-h">Task category</label>
+        <div class="seg seg-sm" id="scheme-seg"></div>
+        <div class="chips" id="categories-chips"></div>
+      </section>
+
+      <section class="ctl">
+        <div class="ctl-h-row">
+          <label class="ctl-h">Findings</label>
+          <button class="mini" data-all="tasks">all</button>
+          <button class="mini" data-none="tasks">none</button>
+        </div>
+        <input type="search" id="task-search" class="search" placeholder="filter findings…" />
+        <div class="chips chips-scroll" id="tasks-chips"></div>
+      </section>
+
+      <button class="reset" id="reset-btn">Reset all filters</button>
+    </div>
+  </aside>
+
+  <!-- ───────────────────────── main ───────────────────────── -->
+  <main class="main" id="main">
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="tab active" data-tab="table">Leaderboard</button>
+      <button class="tab" data-tab="ranking">Ranking</button>
+      <button class="tab" data-tab="heatmap">Heatmap</button>
+      <button class="tab" data-tab="compare">Compare</button>
+      <button class="tab" data-tab="breakdown">By category</button>
+    </div>
+
+    <p class="viewcap" id="viewcap"></p>
+
+    <section class="panel" id="panel-table">
+      <div class="panel-tools">
+        <button class="tool" id="export-csv">Export CSV</button>
+      </div>
+      <div class="table-wrap"><table id="lb-table"></table></div>
+    </section>
+
+    <section class="panel hidden" id="panel-ranking">
+      <div id="chart-ranking" class="chart"></div>
+    </section>
+
+    <section class="panel hidden" id="panel-heatmap">
+      <div class="panel-tools">
+        <label class="inline">Columns:
+          <select id="heatmap-axis">
+            <option value="dataset">Dataset</option>
+            <option value="anatomy">Anatomy</option>
+            <option value="extent">Spatial extent</option>
+            <option value="prevalence">Prevalence</option>
+            <option value="region">Region</option>
+          </select>
+        </label>
+      </div>
+      <div id="chart-heatmap" class="chart"></div>
+    </section>
+
+    <section class="panel hidden" id="panel-compare">
+      <div class="panel-tools">
+        <label class="inline">X: <select id="cmp-a"></select></label>
+        <label class="inline">Y: <select id="cmp-b"></select></label>
+        <span class="hint">Each point is one finding (mean across selected datasets).</span>
+      </div>
+      <div id="chart-compare" class="chart"></div>
+    </section>
+
+    <section class="panel hidden" id="panel-breakdown">
+      <div class="panel-tools">
+        <label class="inline">Group by:
+          <select id="bd-scheme">
+            <option value="anatomy">Anatomy</option>
+            <option value="extent">Spatial extent</option>
+            <option value="prevalence">Prevalence</option>
+            <option value="dataset">Dataset</option>
+            <option value="region">Region</option>
+          </select>
+        </label>
+      </div>
+      <div id="chart-breakdown" class="chart"></div>
+    </section>
+
+    <p class="footnote" id="footnote"></p>
+
+    <!-- ───────────────────────── about & methods ───────────────────────── -->
+    <details class="about" id="about">
+      <summary>About &amp; methods</summary>
+      <div class="about-body">
+
+        <h3>What this is</h3>
+        <p>CheXboard reports how published chest-radiograph classifiers perform when each is
+          run, unmodified and without site-specific fine-tuning, over the same multinational
+          collection of cohorts. Every model is evaluated on the findings it was released to
+          predict; a model is scored on a cohort only where that cohort carries a label for the
+          finding, so the comparison is always like-for-like rather than a single pooled score.
+          Numbers here are the same ones reported in the accompanying manuscript.</p>
+
+        <h3>Models</h3>
+        <div id="about-models" class="about-grid"></div>
+        <p class="tiny">VLM = vision–language model · CNN = supervised convolutional classifier ·
+          GEN = generative report model · GEN+ = generative model with a trained probability booster.</p>
+
+        <h3>Cohorts</h3>
+        <div id="about-datasets" class="about-grid"></div>
+        <p class="tiny">Sample counts are the largest number of evaluated frontal radiographs
+          carrying a usable label for any single finding in that cohort; a finding labelled in
+          only part of the cohort is scored on fewer. Private cohorts contributed evaluation
+          results only — no images or patient-level data are distributed by this site or its
+          repository.</p>
+
+        <h3>Metrics</h3>
+        <dl id="about-metrics" class="about-dl"></dl>
+
+        <h3>How the numbers are pooled</h3>
+        <p>Each raw cell is one model × cohort × finding × metric. The default
+          <b>per-finding</b> aggregation averages across cohorts within a finding first, then
+          across findings — so a finding labelled in many cohorts does not outweigh a rare one,
+          and this is the aggregation the manuscript's headline figures use. <b>Per dataset</b>
+          reverses the order (average findings within a cohort, then cohorts), and
+          <b>all cells</b> takes a plain mean, which is biased toward the largest cohorts.</p>
+        <p>Confidence intervals on an aggregate are the spread across the averaged units
+          (mean ± 1.96·SE) when at least two units contribute. When a filter narrows the view to a
+          single unit that spread collapses to zero, so the interval falls back to the contributing
+          cells' own bootstrap CIs from the summary — a filtered view still shows real uncertainty
+          rather than a point.</p>
+
+        <h3>Caveats</h3>
+        <ul>
+          <li><b>Binary output.</b> <span id="about-binary">CheXagent</span> emits binary labels
+            only, so it appears under the Youden sensitivity and specificity metrics and is absent
+            from the probability-based metrics (AUROC, AUPRC, operating-point).</li>
+          <li><b>AUROC axis floor.</b> Charts start the AUROC axis at 0.5 (chance); a
+            below-chance run therefore sits on the floor rather than extending below it.</li>
+          <li><b>Age bands.</b> Only cohorts carrying per-image ages contribute to the
+            &lt;18 / 18–65 / 65+ views, so those views cover fewer cohorts and findings than
+            Overall. Two cohorts are adult-only and have no &lt;18 band.</li>
+          <li><b>One inference pass.</b> Intervals describe test-set sampling variability, not
+            run-to-run or seed variability; each model was run once per cohort.</li>
+          <li><b>Labels are the reference, not truth.</b> Cohort labels come from each site's own
+            annotation or report-extraction process and differ in definition and rigour; some
+            disagreement across cohorts reflects labelling rather than model behaviour.</li>
+        </ul>
+
+        <h3>Reproducibility</h3>
+        <p>The site is a pure derivative of a single summary table produced by the analysis
+          pipeline; it never recomputes anything in the browser beyond the pooling described above.
+          The build stamps the source signature below into the data files, so any figure here can
+          be traced to an exact upstream state.</p>
+        <ul class="prov" id="about-prov"></ul>
+
+        <h3>How to cite</h3>
+        <p>Please cite the <a href="https://arxiv.org/abs/2505.16027" target="_blank" rel="noopener">arXiv
+          preprint</a>. This entry is updated once the article is published.</p>
+        <div class="cite-box">
+          <pre id="cite-bibtex"></pre>
+          <button class="tool" id="copy-bibtex">Copy BibTeX</button>
+        </div>
+      </div>
+    </details>
+  </main>
+</div>
+
+<footer class="sitefoot" id="sitefoot">
+  <div class="sitefoot-inner">
+    <div class="foot-col">
+      <b>CheXboard</b>
+      <p class="tiny">Interactive companion to “Benchmarking Classification Tasks of Chest X-ray AI
+        Across Multinational Public and Private Datasets”. Built and maintained by the
+        <a href="https://med.stanford.edu/gevaertlab.html" target="_blank" rel="noopener">Gevaert Lab</a>,
+        Stanford University School of Medicine.</p>
+    </div>
+    <div class="foot-col">
+      <b>Links</b>
+      <ul class="foot-links" id="foot-links"></ul>
+    </div>
+    <div class="foot-col">
+      <b>Data version</b>
+      <p class="tiny" id="foot-version">—</p>
+    </div>
+    <div class="foot-col">
+      <b>License</b>
+      <p class="tiny">Site and build code under Apache-2.0; benchmark results under
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC&nbsp;BY&nbsp;4.0</a>.
+        Institutional logos are trademarks of their owners and are not covered by those licenses.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

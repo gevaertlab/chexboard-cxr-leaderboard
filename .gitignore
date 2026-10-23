@@ -1,0 +1,10 @@
+# This repo is a publish mirror: everything under site/ is meant to be committed,
+# including site/data/*.json and site/assets/*.png. Do not add blanket ignores for
+# `data/` or `*.png` here — that is what keeps the deployed site whole.
+
+.DS_Store
+__pycache__/
+*.py[cod]
+.idea/
+.vscode/
+node_modules/

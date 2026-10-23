@@ -1,0 +1,62 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deploy at a time; never cancel a run that is already publishing
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # a broken sync should fail here, not silently ship a blank leaderboard
+      - name: Check the site is intact
+        run: |
+          set -euo pipefail
+          for f in site/index.html site/app.js site/charts.js site/style.css \
+                   site/vendor/plotly.min.js site/data/leaderboard.json site/data/meta.json \
+                   site/favicon.svg; do
+            test -s "$f" || { echo "::error::missing or empty: $f"; exit 1; }
+          done
+          # .nojekyll is legitimately empty — presence is the whole point of it
+          test -e site/.nojekyll || { echo "::error::missing: site/.nojekyll"; exit 1; }
+          python3 - <<'PY'
+          import json, sys
+          lb = json.load(open("site/data/leaderboard.json"))
+          meta = json.load(open("site/data/meta.json"))
+          n = lb["n_rows"]
+          assert n > 0, "leaderboard.json has no rows"
+          for col, vals in lb["data"].items():
+              assert len(vals) == n, f"column {col} has {len(vals)} values, expected {n}"
+          assert meta["models"] and meta["datasets"] and meta["metrics"], "meta.json is missing facets"
+          keys = {m["key"] for m in meta["models"]}
+          unknown = set(lb["data"]["model"]) - keys
+          assert not unknown, f"models in data with no meta entry: {unknown}"
+          print(f"ok: {n:,} rows, {len(meta['models'])} models, {len(meta['datasets'])} cohorts")
+          PY
+
+      # enablement: turns Pages on (source = GitHub Actions) the first time this
+      # runs, so nobody has to go set it by hand in Settings
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
