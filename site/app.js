@@ -223,7 +223,7 @@ function updateViewCaption(rows) {
   const aggLbl = { task: "equal-weight per finding", dataset: "equal-weight per dataset", simple: "mean of all cells" }[App.state.agg];
   const stratLbl = (App.meta.strata.find((s) => s.key === App.state.stratum) || {}).label || App.state.stratum;
   $("#viewcap").innerHTML =
-    `<b>${mm.label}</b> · ${stratLbl} · ${aggLbl} · ` +
+    `<b>${esc(mm.label)}</b> · ${esc(stratLbl)} · ${esc(aggLbl)} · ` +
     `${nMod} models × ${nDs} datasets × ${nTask} findings · ${rows.length.toLocaleString()} cells`;
 }
 
@@ -258,8 +258,15 @@ function renderTable(rows) {
     const th = el("th", c.num ? "num" : "");
     th.textContent = c.t;
     if (!c.nosort && c.k !== "rank" && c.k !== "bar") {
-      if (App.state.sort.key === c.k) th.innerHTML += ` <span class="arr">${dir < 0 ? "▼" : "▲"}</span>`;
-      th.onclick = () => { const s = App.state.sort; if (s.key === c.k) s.dir *= -1; else { s.key = c.k; s.dir = c.k === "model" ? 1 : -1; } render(); };
+      // the button carries the click and keyboard focus; aria-sort tells screen readers the state
+      const active = App.state.sort.key === c.k;
+      th.setAttribute("aria-sort", active ? (dir < 0 ? "descending" : "ascending") : "none");
+      const sb = el("button", "th-sort");
+      sb.type = "button";
+      sb.textContent = c.t;
+      if (active) sb.innerHTML += ` <span class="arr">${dir < 0 ? "▼" : "▲"}</span>`;
+      th.textContent = ""; th.appendChild(sb);
+      sb.onclick = () => { const s = App.state.sort; if (s.key === c.k) s.dir *= -1; else { s.key = c.k; s.dir = c.k === "model" ? 1 : -1; } render(); };
     }
     htr.appendChild(th);
   }
@@ -272,7 +279,7 @@ function renderTable(rows) {
     tr.appendChild(el("td", "rank", String(i + 1)));
     const mc = el("td");
     mc.innerHTML = `<div class="model-cell"><span class="dot" style="background:${mt.color}"></span>` +
-      `<span class="nm">${mt.official}</span><span class="ty">${mt.type}</span></div>`;
+      `<span class="nm">${esc(mt.official)}</span><span class="ty">${esc(mt.type)}</span></div>`;
     tr.appendChild(mc);
     tr.appendChild(el("td", "num", `<b>${fmt(a.mean)}</b>`));
     tr.appendChild(el("td", "num ci", `${fmt(a.ci_low)}–${fmt(a.ci_high)}`));
@@ -315,6 +322,8 @@ function buildControls() {
 
   // mini all/none
   document.querySelectorAll(".mini").forEach((b) => {
+    const grp = b.dataset.all || b.dataset.none;
+    b.setAttribute("aria-label", `${b.hasAttribute("data-all") ? "Select all" : "Deselect all"} ${grp === "tasks" ? "findings" : grp}`);
     b.onclick = () => {
       const f = b.dataset.all || b.dataset.none;
       const all = b.hasAttribute("data-all") ? false : true; // data-all => select all => empty exclude set
@@ -355,9 +364,21 @@ function segmented(sel, items, current, cb) {
   const box = $(sel); box.innerHTML = "";
   items.forEach((it) => {
     const b = el("button", it.k === current ? "on" : "", it.t);
-    b.onclick = () => { box.querySelectorAll("button").forEach((x) => x.classList.remove("on")); b.classList.add("on"); cb(it.k); };
+    b.type = "button";
+    b.setAttribute("aria-pressed", it.k === current ? "true" : "false");
+    b.onclick = () => { box.querySelectorAll("button").forEach((x) => { x.classList.remove("on"); x.setAttribute("aria-pressed", "false"); }); b.classList.add("on"); b.setAttribute("aria-pressed", "true"); cb(it.k); };
     box.appendChild(b);
   });
+}
+
+// chips are toggle buttons so they take keyboard focus; data-facet/data-key let render() restore focus
+function mkChip(facet, key, on, html) {
+  const chip = el("button", "chip" + (on ? " on" : " off"), html);
+  chip.type = "button";
+  chip.setAttribute("aria-pressed", on ? "true" : "false");
+  chip.dataset.facet = facet; chip.dataset.key = key;
+  chip.onclick = () => { toggle(facet, key); render(); };
+  return chip;
 }
 
 function renderChips(facet) {
@@ -365,39 +386,43 @@ function renderChips(facet) {
   const keys = facetKeys(facet);
   keys.forEach((key) => {
     const on = isOn(facet, key);
-    const chip = el("span", "chip" + (on ? " on" : " off"));
+    const chip = mkChip(facet, key, on);
     if (facet === "models") {
       const mt = modelMeta(key);
-      chip.innerHTML = `<span class="dot" style="background:${on ? mt.color : ""}"></span>${mt.official}<span class="tag">${mt.type}</span>`;
+      chip.innerHTML = `<span class="dot" style="background:${on ? mt.color : ""}"></span>${esc(mt.official)}<span class="tag">${esc(mt.type)}</span>`;
     } else if (facet === "datasets") {
       const dt = App.meta.datasets.find((d) => d.name === key);
       const cls = dt.scope === "Public" ? "pub" : "priv";
-      chip.innerHTML = `${key}<span class="tag ${cls}">${dt.scope === "Public" ? "Pub" : "Priv"}</span>`;
+      chip.innerHTML = `${esc(key)}<span class="tag ${cls}">${dt.scope === "Public" ? "Pub" : "Priv"}</span>`;
     } else {
       chip.textContent = key;
     }
-    chip.onclick = () => { toggle(facet, key); render(); };
     box.appendChild(chip);
   });
 }
 
 function renderTaskChips(query = "") {
+  // these boxes are rebuilt on every render, which would drop keyboard focus, so remember the focused chip
+  const ae = document.activeElement;
+  const focused = ae && ae.classList && ae.classList.contains("chip") && ae.closest("#categories-chips, #tasks-chips")
+    ? { facet: ae.dataset.facet, key: ae.dataset.key } : null;
   // categories chips (scheme) live in their own box
   const cbox = $("#categories-chips"); cbox.innerHTML = "";
   facetKeys("categories").forEach((key) => {
     const on = isOn("categories", key);
-    const chip = el("span", "chip" + (on ? " on" : " off"), key);
-    chip.onclick = () => { toggle("categories", key); render(); };
-    cbox.appendChild(chip);
+    cbox.appendChild(mkChip("categories", key, on, esc(key)));
   });
   // findings chips
   const box = $("#tasks-chips"); box.innerHTML = "";
   facetKeys("tasks").filter((k) => k.toLowerCase().includes(query)).forEach((key) => {
     const on = isOn("tasks", key);
-    const chip = el("span", "chip" + (on ? " on" : " off"), key);
-    chip.onclick = () => { toggle("tasks", key); render(); };
-    box.appendChild(chip);
+    box.appendChild(mkChip("tasks", key, on, esc(key)));
   });
+  if (focused) {
+    const nc = [...document.querySelectorAll("#categories-chips .chip, #tasks-chips .chip")]
+      .find((c) => c.dataset.facet === focused.facet && c.dataset.key === focused.key);
+    if (nc) nc.focus();
+  }
 }
 
 // keep chip on/off classes in sync after non-chip actions
@@ -407,6 +432,7 @@ function refreshChips() {
       const key = facetKeys(f)[i];
       chip.classList.toggle("on", isOn(f, key));
       chip.classList.toggle("off", !isOn(f, key));
+      chip.setAttribute("aria-pressed", isOn(f, key) ? "true" : "false");
       if (f === "models") { const mt = modelMeta(key); chip.querySelector(".dot").style.background = isOn(f, key) ? mt.color : ""; }
     });
   });
@@ -419,7 +445,7 @@ function refreshChips() {
 }
 
 function buildCompareSelects() {
-  const opts = App.meta.models.map((m) => `<option value="${m.key}">${m.official}</option>`).join("");
+  const opts = App.meta.models.map((m) => `<option value="${esc(m.key)}">${esc(m.official)}</option>`).join("");
   $("#cmp-a").innerHTML = opts; $("#cmp-b").innerHTML = opts;
   App.state.cmpA = App.state.cmpA || App.meta.models[0].key;
   App.state.cmpB = App.state.cmpB || App.meta.models[1].key;
@@ -430,11 +456,30 @@ function buildCompareSelects() {
 // binary model has no auroc/auprc — nudge compare selects off it for those metrics
 function guardCompareModels() {}
 
+// keep aria-selected and the roving tabindex in step with the .active class
+function syncTabs() {
+  document.querySelectorAll(".tab").forEach((x) => {
+    const on = x.classList.contains("active");
+    x.setAttribute("aria-selected", on ? "true" : "false");
+    x.tabIndex = on ? 0 : -1;
+  });
+}
+
 function bindTabs() {
-  document.querySelectorAll(".tab").forEach((b) => {
+  const tabs = [...document.querySelectorAll(".tab")];
+  $("#tabs").addEventListener("keydown", (e) => {
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    const j = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+    if (j == null) return;
+    e.preventDefault();
+    tabs[j].click(); tabs[j].focus();
+  });
+  tabs.forEach((b) => {
     b.onclick = () => {
       document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
       b.classList.add("active");
+      syncTabs();
       App.state.tab = b.dataset.tab;
       document.querySelectorAll(".panel").forEach((p) => p.classList.add("hidden"));
       $(`#panel-${App.state.tab}`).classList.remove("hidden");
@@ -446,14 +491,24 @@ function bindTabs() {
 function renderFootnote(rows) {
   const mm = metricMeta(App.state.metric);
   const binaries = App.meta.models.filter((m) => m.is_binary).map((m) => m.official);
-  let note = `Values are point estimates with bootstrap 95% confidence intervals (test-set sampling variability, single inference pass). `;
+  const unit = { task: "findings", dataset: "datasets", simple: "cells" }[App.state.agg];
+  let note = `Each cohort × finding value carries a bootstrap 95% CI (test-set sampling variability, single inference pass). ` +
+    `An aggregate's 95% CI is mean ± 1.96·SE across the averaged ${unit}; when only one remains, the cells' own bootstrap CIs are shown instead. `;
   if (["auroc", "auprc", "sens_at_95spec", "spec_at_95sens", "ppv_at_95sens", "npv_at_95sens"].includes(mm.key) && binaries.length)
     note += binaries.length === 1
       ? `${binaries[0]} produces binary output only and is excluded from probability-based metrics. `
       : `${binaries.join(", ")} produce binary output only and are excluded from probability-based metrics. `;
   if (App.state.stratum !== "overall")
     note += `Age-band views include only cohorts with per-image ages, so fewer datasets and findings contribute than in the Overall view. `;
-  note += `Aggregation reproduces the manuscript's equal-weight-per-finding method. Private cohorts: ${App.meta.datasets.filter((d)=>d.scope==="Private").map((d)=>d.name).join(", ")}.`;
+  // models cover different findings, so a rank compares averages over different sets
+  const counts = aggregateModels(rows).map((a) => a.n_units);
+  if (counts.length > 1 && Math.min(...counts) !== Math.max(...counts))
+    note += `Models here are averaged over different numbers of ${unit} (${Math.min(...counts)}–${Math.max(...counts)}), ` +
+      `so a higher rank does not mean better performance on the same ${unit}; use the Findings filter or the Compare tab for a matched comparison. `;
+  note += App.state.agg === "task"
+    ? `Aggregation reproduces the manuscript's equal-weight-per-finding method. `
+    : `This aggregation is an alternative view; the manuscript reports equal weight per finding. `;
+  note += `Private cohorts: ${App.meta.datasets.filter((d)=>d.scope==="Private").map((d)=>d.name).join(", ")}.`;
   $("#footnote").textContent = note;
 }
 
@@ -484,6 +539,8 @@ function openAbout() {
   const d = $("#about");
   d.open = true;
   d.scrollIntoView({ behavior: "smooth", block: "start" });
+  // move focus too, or keyboard users stay on the nav button; preventScroll keeps the smooth scroll
+  d.querySelector("summary").focus({ preventScroll: true });
 }
 
 function buildNav() {
@@ -559,15 +616,25 @@ function exportCsv() {
   const agg = aggregateModels(filtered());
   const mm = metricMeta(App.state.metric);
   const head = ["rank", "model", "type", mm.short, "ci_low", "ci_high", "n_units"];
-  const lines = [head.join(",")];
+  // RFC 4180 quoting; a leading = + - @ is prefixed with ' so a spreadsheet reads
+  // the field as text instead of a formula
+  const q = (v) => {
+    let s = String(v);
+    if (/^[=+\-@]/.test(s)) s = "'" + s;
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [head.map(q).join(",")];
   agg.forEach((a, i) => {
     const mt = modelMeta(a.model);
-    lines.push([i + 1, mt.official, mt.type, fmt(a.mean, 4), fmt(a.ci_low, 4), fmt(a.ci_high, 4), a.n_units].join(","));
+    lines.push([i + 1, mt.official, mt.type, fmt(a.mean, 4), fmt(a.ci_low, 4), fmt(a.ci_high, 4), a.n_units].map(q).join(","));
   });
-  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const blob = new Blob([lines.join("\r\n") + "\r\n"], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = el("a"); a.href = url; a.download = `leaderboard_${App.state.metric}_${App.state.stratum}.csv`; a.click();
-  URL.revokeObjectURL(url);
+  const a = el("a"); a.href = url; a.download = `leaderboard_${App.state.metric}_${App.state.stratum}.csv`;
+  // attached and revoked a beat later: some Safari builds drop a download whose
+  // anchor is detached or whose blob URL is revoked in the same tick
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function writeHash() {
@@ -582,18 +649,27 @@ function writeHash() {
 function readHash() {
   if (!location.hash) return;
   const p = new URLSearchParams(location.hash.slice(1));
-  const s = App.state;
-  if (p.get("m")) s.metric = p.get("m");
-  if (p.get("p")) s.stratum = p.get("p");
-  if (p.get("a")) s.agg = p.get("a");
-  if (p.get("t")) s.tab = p.get("t");
-  if (p.get("sc")) s.scheme = p.get("sc");
+  const s = App.state, m = App.meta;
+  // a shared link is untrusted input: take a value only if it names something that
+  // exists, otherwise keep the default (an unknown key would throw or reach the DOM)
+  const pick = (name, allowed, cur) => { const v = p.get(name); return v != null && allowed.includes(v) ? v : cur; };
+  s.metric = pick("m", m.metrics.map((x) => x.key), s.metric);
+  s.stratum = pick("p", m.strata.map((x) => x.key), s.stratum);
+  s.agg = pick("a", ["task", "dataset", "simple"], s.agg);
+  s.tab = pick("t", [...document.querySelectorAll(".tab")].map((b) => b.dataset.tab), s.tab);
+  s.scheme = pick("sc", Object.keys(m.category_schemes), s.scheme);
   for (const f of ["models", "regions", "datasets", "tasks", "categories"])
     if (p.get("x_" + f)) s.sel[f] = new Set(p.get("x_" + f).split("~"));
   // reflect tab
   document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b.dataset.tab === s.tab));
+  syncTabs();
   document.querySelectorAll(".panel").forEach((pn) => pn.classList.toggle("hidden", pn.id !== `panel-${s.tab}`));
 }
+
+// writeHash uses replaceState, which never fires hashchange, so this only runs when
+// the visitor edits the URL or pastes a shared link into an open tab. Reloading
+// rebuilds every control from the new hash; the JSON comes back from cache.
+window.addEventListener("hashchange", () => location.reload());
 
 // .catch covers anything thrown after the fetch (a data shape the UI cannot build
 // from); the window listener above covers synchronous errors outside boot()

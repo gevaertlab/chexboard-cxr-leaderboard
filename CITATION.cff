@@ -69,8 +69,9 @@ abstract: >-
   Results can be filtered by model, region, cohort, finding, task category and
   age band, and read as a ranked table or as ranking, heatmap, model-versus-model
   and per-category charts. Every number is the equal-weight-per-finding
-  aggregation reported in the accompanying article, with percentile bootstrap 95%
-  confidence intervals.
+  aggregation reported in the accompanying article. Each cohort-finding value
+  carries a percentile bootstrap 95% confidence interval; aggregate intervals are
+  the mean ± 1.96 standard errors across findings.
 keywords:
   - chest X-ray
   - medical imaging

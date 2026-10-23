@@ -6,7 +6,7 @@
 :root {
   --ink:        #1a1d21;
   --ink-soft:   #545b64;
-  --ink-faint:  #8a929c;
+  --ink-faint:  #626a74;
   --line:       #e4e7eb;
   --line-soft:  #eef1f4;
   --bg:         #ffffff;
@@ -96,11 +96,18 @@ body {
   border: 1px solid var(--line); background: var(--bg); color: var(--ink-soft);
   border-radius: 20px; padding: 4px 10px 4px 9px; font-size: 12px; cursor: pointer;
   user-select: none; transition: background .12s, border-color .12s, color .12s;
+  /* chips are buttons: reset the UA button look so they match the old spans */
+  font-family: inherit; line-height: inherit; margin: 0;
+}
+.chip:focus-visible, .seg button:focus-visible, .tab:focus-visible, .th-sort:focus-visible,
+.mini:focus-visible, .scope-btn:focus-visible, .reset:focus-visible, .tool:focus-visible,
+.topnav button:focus-visible, .info:focus-visible, .about > summary:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
 }
 .chip:hover { border-color: var(--ink-faint); }
 .chip .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
 .chip.on { background: var(--accent-bg); border-color: var(--accent); color: var(--ink); font-weight: 500; }
-.chip.off { opacity: .5; }
+.chip.off { background: var(--bg-sink); border-style: dashed; color: var(--ink-soft); text-decoration: line-through; }
 .chip.off .dot { background: var(--line) !important; }
 .chip .tag { font-size: 9px; color: var(--ink-faint); border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; text-transform: uppercase; }
 .chip .tag.pub { color: #1b7837; border-color: #bfe3c8; background: #f0f8f2; }
@@ -120,7 +127,9 @@ body {
   width: 100%; border: 1px solid var(--line); border-radius: var(--radius);
   padding: 6px 9px; font-size: 12px; font-family: inherit; margin-bottom: 8px; color: var(--ink);
 }
-.search:focus { outline: none; border-color: var(--accent); }
+.search:focus { border-color: var(--accent); }
+.search:focus:not(:focus-visible) { outline: none; }
+.search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 .reset {
   width: 100%; margin-top: 6px; padding: 9px; border: 1px solid var(--line);
@@ -130,11 +139,12 @@ body {
 .reset:hover { background: var(--bg-soft); color: var(--ink); }
 
 /* ── tabs ── */
-.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
 .tab {
   border: none; background: none; cursor: pointer; font-family: inherit;
   padding: 9px 15px; font-size: 13.5px; color: var(--ink-soft);
-  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .12s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .12s; flex: 0 0 auto; white-space: nowrap;
 }
 .tab:hover { color: var(--ink); }
 .tab.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
@@ -161,6 +171,7 @@ thead th {
   border-bottom: 2px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none;
 }
 thead th.num { text-align: right; }
+.th-sort { font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; background: none; border: none; padding: 0; margin: 0; cursor: pointer; text-align: inherit; }
 thead th .arr { color: var(--accent); font-size: 9px; margin-left: 3px; }
 tbody td { padding: 9px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
 tbody tr:hover { background: var(--bg-soft); }
@@ -204,7 +215,10 @@ td.rank { color: var(--ink-faint); font-variant-numeric: tabular-nums; width: 30
 .boot.failed .boot-spin { display: none; }
 .boot-msg { font-size: 13px; margin: 0; }
 .boot.failed .boot-msg { color: #a3341f; max-width: 62ch; margin: 0 auto; line-height: 1.6; }
-@media (prefers-reduced-motion: reduce) { .boot-spin { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .boot-spin, .panel { animation: none; }
+  .seg button, .chip { transition: none; }
+}
 
 /* ── about & methods ── */
 .about { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 6px; }
@@ -279,4 +293,12 @@ td.rank { color: var(--ink-faint); font-variant-numeric: tabular-nums; width: 30
   .h1-sub { display: block; font-size: 13px; margin-top: 2px; }
   .h1-sub::before { content: ""; }
   .chart { min-height: 380px; }
+}
+
+/* ── print: just the table and footnote ── */
+@media print {
+  .sidebar, .topnav, .tabs, .tool, .skip-link { display: none !important; }
+  .layout { display: block; max-width: none; }
+  .main { padding: 0; }
+  .panel { animation: none; }
 }

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CheXboard — Chest X-ray Model Leaderboard</title>
-<meta name="description" content="An interactive leaderboard of chest X-ray AI models evaluated on 12 public and private cohorts across 4 world regions. Compare AUROC, AUPRC and operating-point metrics per finding, cohort and age band, with bootstrap 95% confidence intervals." />
+<meta name="description" content="An interactive leaderboard of chest X-ray AI models evaluated on 12 public and private cohorts across 4 world regions. Compare AUROC, AUPRC and operating-point metrics per finding, cohort and age band, with 95% confidence intervals." />
 <meta name="author" content="Gevaert Lab, Stanford University School of Medicine" />
 <meta name="theme-color" content="#0b6e99" />
 <link rel="canonical" href="https://gevaertlab.github.io/chexboard-cxr-leaderboard/" />
@@ -13,14 +13,14 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="CheXboard" />
 <meta property="og:title" content="CheXboard — Chest X-ray Model Leaderboard" />
-<meta property="og:description" content="Ten chest X-ray AI models, twelve public and private cohorts, four world regions — compared per finding with bootstrap 95% CIs." />
+<meta property="og:description" content="Ten chest X-ray AI models, twelve public and private cohorts, four world regions — compared per finding with 95% CIs." />
 <meta property="og:url" content="https://gevaertlab.github.io/chexboard-cxr-leaderboard/" />
 <meta property="og:image" content="https://gevaertlab.github.io/chexboard-cxr-leaderboard/assets/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="CheXboard — Chest X-ray Model Leaderboard" />
-<meta name="twitter:description" content="Ten chest X-ray AI models, twelve public and private cohorts, four world regions — compared per finding with bootstrap 95% CIs." />
+<meta name="twitter:description" content="Ten chest X-ray AI models, twelve public and private cohorts, four world regions — compared per finding with 95% CIs." />
 <meta name="twitter:image" content="https://gevaertlab.github.io/chexboard-cxr-leaderboard/assets/og-image.png" />
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -42,7 +42,7 @@
       </a>
       <h1>CheXboard <span class="h1-sub">Chest&nbsp;X-ray Model Leaderboard</span></h1>
       <p class="subtitle">Cross-institutional benchmark of foundation &amp; supervised classifiers across
-        public and private cohorts. Point estimates with bootstrap 95% CIs.</p>
+        public and private cohorts. Point estimates with 95% CIs.</p>
     </div>
     <div class="brand-side">
       <nav class="topnav" id="topnav" aria-label="Site links"><!-- links injected --></nav>
@@ -68,98 +68,98 @@
     <div class="sidebar-scroll">
 
       <section class="ctl">
-        <label class="ctl-h">Metric</label>
+        <span class="ctl-h" role="heading" aria-level="2">Metric</span>
         <div class="seg" id="metric-seg"></div>
         <p class="metric-desc" id="metric-desc"></p>
       </section>
 
       <section class="ctl">
-        <label class="ctl-h">Population</label>
+        <span class="ctl-h" role="heading" aria-level="2">Population</span>
         <div class="seg" id="stratum-seg"></div>
       </section>
 
       <section class="ctl">
-        <label class="ctl-h">Aggregation
-          <span class="info" title="How per-(dataset,pathology) cells are pooled into one number per model.">?</span>
-        </label>
+        <span class="ctl-h" role="heading" aria-level="2">Aggregation
+          <span class="info" tabindex="0" role="img" title="How per-(dataset,pathology) cells are pooled into one number per model." aria-label="How per-(dataset,pathology) cells are pooled into one number per model.">?</span>
+        </span>
         <div class="seg" id="agg-seg"></div>
       </section>
 
       <section class="ctl">
         <div class="ctl-h-row">
-          <label class="ctl-h">Models</label>
-          <button class="mini" data-all="models">all</button>
-          <button class="mini" data-none="models">none</button>
+          <span class="ctl-h" role="heading" aria-level="2">Models</span>
+          <button type="button" class="mini" data-all="models">all</button>
+          <button type="button" class="mini" data-none="models">none</button>
         </div>
         <div class="chips" id="models-chips"></div>
       </section>
 
       <section class="ctl">
         <div class="ctl-h-row">
-          <label class="ctl-h">Region</label>
-          <button class="mini" data-all="regions">all</button>
-          <button class="mini" data-none="regions">none</button>
+          <span class="ctl-h" role="heading" aria-level="2">Region</span>
+          <button type="button" class="mini" data-all="regions">all</button>
+          <button type="button" class="mini" data-none="regions">none</button>
         </div>
         <div class="chips" id="regions-chips"></div>
       </section>
 
       <section class="ctl">
         <div class="ctl-h-row">
-          <label class="ctl-h">Datasets</label>
-          <button class="mini" data-all="datasets">all</button>
-          <button class="mini" data-none="datasets">none</button>
+          <span class="ctl-h" role="heading" aria-level="2">Datasets</span>
+          <button type="button" class="mini" data-all="datasets">all</button>
+          <button type="button" class="mini" data-none="datasets">none</button>
         </div>
         <div class="scope-toggles" id="scope-toggles">
-          <button class="scope-btn" data-scope="Public">All public</button>
-          <button class="scope-btn" data-scope="Private">All private</button>
+          <button type="button" class="scope-btn" data-scope="Public">All public</button>
+          <button type="button" class="scope-btn" data-scope="Private">All private</button>
         </div>
         <div class="chips" id="datasets-chips"></div>
       </section>
 
       <section class="ctl">
-        <label class="ctl-h">Task category</label>
+        <span class="ctl-h" role="heading" aria-level="2">Task category</span>
         <div class="seg seg-sm" id="scheme-seg"></div>
         <div class="chips" id="categories-chips"></div>
       </section>
 
       <section class="ctl">
         <div class="ctl-h-row">
-          <label class="ctl-h">Findings</label>
-          <button class="mini" data-all="tasks">all</button>
-          <button class="mini" data-none="tasks">none</button>
+          <span class="ctl-h" role="heading" aria-level="2">Findings</span>
+          <button type="button" class="mini" data-all="tasks">all</button>
+          <button type="button" class="mini" data-none="tasks">none</button>
         </div>
-        <input type="search" id="task-search" class="search" placeholder="filter findings…" />
+        <input type="search" id="task-search" class="search" aria-label="Filter findings" placeholder="filter findings…" />
         <div class="chips chips-scroll" id="tasks-chips"></div>
       </section>
 
-      <button class="reset" id="reset-btn">Reset all filters</button>
+      <button type="button" class="reset" id="reset-btn">Reset all filters</button>
     </div>
   </aside>
 
   <!-- ───────────────────────── main ───────────────────────── -->
   <main class="main" id="main">
     <div class="tabs" id="tabs" role="tablist">
-      <button class="tab active" data-tab="table">Leaderboard</button>
-      <button class="tab" data-tab="ranking">Ranking</button>
-      <button class="tab" data-tab="heatmap">Heatmap</button>
-      <button class="tab" data-tab="compare">Compare</button>
-      <button class="tab" data-tab="breakdown">By category</button>
+      <button type="button" class="tab active" role="tab" id="tab-table" aria-controls="panel-table" aria-selected="true" tabindex="0" data-tab="table">Leaderboard</button>
+      <button type="button" class="tab" role="tab" id="tab-ranking" aria-controls="panel-ranking" aria-selected="false" tabindex="-1" data-tab="ranking">Ranking</button>
+      <button type="button" class="tab" role="tab" id="tab-heatmap" aria-controls="panel-heatmap" aria-selected="false" tabindex="-1" data-tab="heatmap">Heatmap</button>
+      <button type="button" class="tab" role="tab" id="tab-compare" aria-controls="panel-compare" aria-selected="false" tabindex="-1" data-tab="compare">Compare</button>
+      <button type="button" class="tab" role="tab" id="tab-breakdown" aria-controls="panel-breakdown" aria-selected="false" tabindex="-1" data-tab="breakdown">By category</button>
     </div>
 
     <p class="viewcap" id="viewcap"></p>
 
-    <section class="panel" id="panel-table">
+    <section class="panel" id="panel-table" role="tabpanel" aria-labelledby="tab-table">
       <div class="panel-tools">
-        <button class="tool" id="export-csv">Export CSV</button>
+        <button type="button" class="tool" id="export-csv">Export CSV</button>
       </div>
       <div class="table-wrap"><table id="lb-table"></table></div>
     </section>
 
-    <section class="panel hidden" id="panel-ranking">
-      <div id="chart-ranking" class="chart"></div>
+    <section class="panel hidden" id="panel-ranking" role="tabpanel" aria-labelledby="tab-ranking">
+      <div id="chart-ranking" class="chart" role="img" aria-label="Ranking chart of the current selection; the Leaderboard tab lists the same numbers as a table."></div>
     </section>
 
-    <section class="panel hidden" id="panel-heatmap">
+    <section class="panel hidden" id="panel-heatmap" role="tabpanel" aria-labelledby="tab-heatmap">
       <div class="panel-tools">
         <label class="inline">Columns:
           <select id="heatmap-axis">
@@ -171,19 +171,19 @@
           </select>
         </label>
       </div>
-      <div id="chart-heatmap" class="chart"></div>
+      <div id="chart-heatmap" class="chart" role="img" aria-label="Heatmap of the current selection; the Leaderboard tab lists the same numbers as a table."></div>
     </section>
 
-    <section class="panel hidden" id="panel-compare">
+    <section class="panel hidden" id="panel-compare" role="tabpanel" aria-labelledby="tab-compare">
       <div class="panel-tools">
         <label class="inline">X: <select id="cmp-a"></select></label>
         <label class="inline">Y: <select id="cmp-b"></select></label>
         <span class="hint">Each point is one finding (mean across selected datasets).</span>
       </div>
-      <div id="chart-compare" class="chart"></div>
+      <div id="chart-compare" class="chart" role="img" aria-label="Scatter plot comparing two models on the current selection; the Leaderboard tab lists the same numbers as a table."></div>
     </section>
 
-    <section class="panel hidden" id="panel-breakdown">
+    <section class="panel hidden" id="panel-breakdown" role="tabpanel" aria-labelledby="tab-breakdown">
       <div class="panel-tools">
         <label class="inline">Group by:
           <select id="bd-scheme">
@@ -195,7 +195,7 @@
           </select>
         </label>
       </div>
-      <div id="chart-breakdown" class="chart"></div>
+      <div id="chart-breakdown" class="chart" role="img" aria-label="Performance by category chart of the current selection; the Leaderboard tab lists the same numbers as a table."></div>
     </section>
 
     <p class="footnote" id="footnote"></p>
@@ -210,7 +210,9 @@
           run, unmodified and without site-specific fine-tuning, over the same multinational
           collection of cohorts. Every model is evaluated on the findings it was released to
           predict; a model is scored on a cohort only where that cohort carries a label for the
-          finding, so the comparison is always like-for-like rather than a single pooled score.
+          finding, so every cohort × finding score compares like with like. Models cover
+          different numbers of findings, so each average is shown with the count it is taken
+          over, and the Findings filter or the Compare tab gives a matched comparison.
           Numbers here are the same ones reported in the accompanying manuscript.</p>
 
         <h3>Models</h3>
@@ -271,7 +273,7 @@
           preprint</a>. This entry is updated once the article is published.</p>
         <div class="cite-box">
           <pre id="cite-bibtex"></pre>
-          <button class="tool" id="copy-bibtex">Copy BibTeX</button>
+          <button type="button" class="tool" id="copy-bibtex">Copy BibTeX</button>
         </div>
       </div>
     </details>

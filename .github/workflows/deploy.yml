@@ -47,14 +47,20 @@ jobs:
           keys = {m["key"] for m in meta["models"]}
           unknown = set(lb["data"]["model"]) - keys
           assert not unknown, f"models in data with no meta entry: {unknown}"
+          ds = {d["name"] for d in meta["datasets"]}
+          assert set(lb["data"]["dataset"]) <= ds, f"cohorts with no meta entry: {set(lb['data']['dataset']) - ds}"
+          mk = {m["key"] for m in meta["metrics"]}
+          assert set(lb["data"]["metric"]) <= mk, f"metrics with no meta entry: {set(lb['data']['metric']) - mk}"
+          vals = [v for v in lb["data"]["value"] if v is not None]
+          assert all(0 <= v <= 1 for v in vals), "metric values outside [0, 1]"
           print(f"ok: {n:,} rows, {len(meta['models'])} models, {len(meta['datasets'])} cohorts")
           PY
+          # a syntax error in either script would ship a page that never loads
+          node --check site/app.js && node --check site/charts.js
 
-      # enablement: turns Pages on (source = GitHub Actions) the first time this
-      # runs, so nobody has to go set it by hand in Settings
+      # Pages must be switched on once under Settings -> Pages -> Source: GitHub
+      # Actions; the default GITHUB_TOKEN cannot enable it from here
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

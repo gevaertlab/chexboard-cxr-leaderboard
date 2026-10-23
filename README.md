@@ -4,12 +4,12 @@ Interactive leaderboard for **“Benchmarking Classification Tasks of Chest X-ra
 Across Multinational Public and Private Datasets”**
 ([arXiv:2505.16027](https://arxiv.org/abs/2505.16027)). Ten published chest-radiograph classifiers, run
 unmodified across twelve cohorts in four world regions, compared per finding with
-bootstrap 95% confidence intervals.
+95% confidence intervals.
 
 **Live site:** https://gevaertlab.github.io/chexboard-cxr-leaderboard/
 
 ![The CheXboard leaderboard: ten chest X-ray models ranked by mean AUROC with
-bootstrap 95% confidence intervals, beside filters for metric, population, model,
+95% confidence intervals, beside filters for metric, population, model,
 region and cohort.](site/assets/screenshot.png)
 
 Filter by model, region, cohort, finding, task category and age band; switch the
