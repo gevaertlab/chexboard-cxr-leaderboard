@@ -15,12 +15,56 @@
   --accent:     #0b6e99;       /* calm teal-blue, distinct from any model hue */
   --accent-bg:  #e6f1f6;
   --good:       #1b7837;
+  --on-accent:  #ffffff;       /* text on an accent-filled surface */
+  /* chart chrome; charts.js reads these at render time */
+  --chart-grid:       #eef1f4;
+  --chart-axis:       #c8cdd3;
+  --chart-hover-line: #d4d8dd;
+  --chart-whisker:    rgba(26,29,33,.45);
+  /* status colours: public/private dataset tags, warning banner, load error */
+  --pub-ink:  #1b7837; --pub-line:  #bfe3c8; --pub-bg:  #f0f8f2;
+  --priv-ink: #9a6700; --priv-line: #f0dcab; --priv-bg: #fcf6e6;
+  --warn-ink: #6b5a1e; --warn-line: #f0e0a8; --warn-bg: #fff8e1;
+  --error:    #a3341f;
   --radius:     7px;
   --shadow:     0 1px 2px rgba(20,25,35,.05), 0 2px 8px rgba(20,25,35,.04);
   --font:       "Inter", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono:       "SFMono-Regular", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --sidebar-w:  292px;
+  color-scheme: light;
 }
+
+/* Dark mode. theme.js sets data-theme from the visitor's switch, or from the
+   operating-system setting when the switch is on Auto. Only the tokens change;
+   the model colours come from the data and read on both grounds. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink:        #e4e7eb;
+  --ink-soft:   #aab1ba;
+  --ink-faint:  #8f97a1;
+  --line:       #2e333a;
+  --line-soft:  #24282e;
+  --bg:         #141619;
+  --bg-soft:    #1a1d21;
+  --bg-sink:    #22262b;
+  --accent:     #4cb0db;       /* the teal, lifted to stay readable on dark */
+  --accent-bg:  #10303e;
+  --good:       #5cc27f;
+  --on-accent:  #0b1a22;
+  --shadow:     0 1px 2px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
+  --chart-grid:       #262a30;
+  --chart-axis:       #474e57;
+  --chart-hover-line: #3a4048;
+  --chart-whisker:    rgba(228,231,235,.55);
+  --pub-ink:  #6fcf8e; --pub-line:  #2c5a3b; --pub-bg:  #14261b;
+  --priv-ink: #e3b35e; --priv-line: #5e4b22; --priv-bg: #2a2214;
+  --warn-ink: #ead69c; --warn-line: #5e4f24; --warn-bg: #29230f;
+  --error:    #f08a74;
+}
+/* the Stanford Medicine logo is Cardinal and grey artwork made for light grounds;
+   it sits on a white plate instead of being recoloured */
+[data-theme="dark"] .brand-logo { background: #fff; padding: 6px 9px; border-radius: 6px; margin-bottom: 10px; }
+[data-theme="dark"] .brand-logo img { margin-bottom: 0; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -46,26 +90,37 @@ body {
 .h1-sub::before { content: "· "; }
 .subtitle { margin: 5px 0 0; color: var(--ink-soft); font-size: 13px; max-width: 70ch; }
 .brand-side { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-.topnav { display: flex; gap: 16px; white-space: nowrap; }
+.topnav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; white-space: nowrap; }
 .topnav a, .topnav button {
   font-size: 12px; color: var(--ink-soft); text-decoration: none;
   background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
 }
 .topnav a:hover, .topnav button:hover { color: var(--accent); text-decoration: underline; }
+/* Auto / Light / Dark switch at the end of the nav */
+.theme-seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-sink); border-radius: 6px; }
+.topnav .theme-seg button { padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+.topnav .theme-seg button:hover { color: var(--ink); text-decoration: none; }
+.topnav .theme-seg button[aria-pressed="true"] { background: var(--bg); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }
 .brand-meta { display: flex; gap: 20px; white-space: nowrap; }
 .brand-meta .stat { text-align: right; }
 .brand-meta .stat b { display: block; font-size: 19px; font-weight: 650; line-height: 1; }
 .brand-meta .stat span { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .04em; }
 
-/* ── layout ── */
-.layout { display: flex; max-width: 1500px; margin: 0 auto; align-items: flex-start; }
-.sidebar {
-  width: var(--sidebar-w); flex: 0 0 var(--sidebar-w);
-  border-right: 1px solid var(--line);
-  position: sticky; top: 0; height: 100vh;
+/* ── layout ──
+   The page's one scrollbar moves both columns. Each column is sticky, and app.js
+   sets its `top` to min(0, window height - column height): a column that fits the
+   window stays pinned at the top, and a taller one scrolls until its end is in
+   view, then holds. The longer column sets the page length; the shorter one stays
+   in the window instead of leaving blank space under it. */
+.layout { display: flex; max-width: 1500px; margin: 0 auto; align-items: flex-start; position: relative; }
+/* the column divider spans the layout, whichever column is longer */
+.layout::before {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: calc(var(--sidebar-w) - 1px); border-left: 1px solid var(--line);
 }
-.sidebar-scroll { height: 100%; overflow-y: auto; padding: 18px 18px 40px; }
-.main { flex: 1 1 auto; min-width: 0; padding: 18px 26px 60px; }
+.sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); position: sticky; top: 0; }
+.sidebar-inner { padding: 18px 18px 40px; }
+.main { flex: 1 1 auto; min-width: 0; padding: 18px 26px 60px; position: sticky; top: 0; }
 
 /* ── controls ── */
 .ctl { margin-bottom: 20px; }
@@ -110,8 +165,8 @@ body {
 .chip.off { background: var(--bg-sink); border-style: dashed; color: var(--ink-soft); text-decoration: line-through; }
 .chip.off .dot { background: var(--line) !important; }
 .chip .tag { font-size: 9px; color: var(--ink-faint); border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; text-transform: uppercase; }
-.chip .tag.pub { color: #1b7837; border-color: #bfe3c8; background: #f0f8f2; }
-.chip .tag.priv { color: #9a6700; border-color: #f0dcab; background: #fcf6e6; }
+.chip .tag.pub { color: var(--pub-ink); border-color: var(--pub-line); background: var(--pub-bg); }
+.chip .tag.priv { color: var(--priv-ink); border-color: var(--priv-line); background: var(--priv-bg); }
 
 /* scope quick-toggles (all public / all private) */
 .scope-toggles { display: flex; gap: 6px; margin-bottom: 9px; }
@@ -125,7 +180,7 @@ body {
 
 .search {
   width: 100%; border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 6px 9px; font-size: 12px; font-family: inherit; margin-bottom: 8px; color: var(--ink);
+  padding: 6px 9px; font-size: 12px; font-family: inherit; margin-bottom: 8px; color: var(--ink); background: var(--bg);
 }
 .search:focus { border-color: var(--accent); }
 .search:focus:not(:focus-visible) { outline: none; }
@@ -196,13 +251,13 @@ td.rank { color: var(--ink-faint); font-variant-numeric: tabular-nums; width: 30
 .hidden { display: none !important; }
 .skip-link {
   position: absolute; left: -9999px; top: 0; z-index: 100;
-  background: var(--accent); color: #fff; padding: 9px 14px; border-radius: 0 0 var(--radius) 0; font-size: 13px;
+  background: var(--accent); color: var(--on-accent); padding: 9px 14px; border-radius: 0 0 var(--radius) 0; font-size: 13px;
 }
 .skip-link:focus { left: 0; }
 .banner {
   max-width: 1500px; margin: 14px auto; padding: 12px 16px;
-  background: #fff8e1; border: 1px solid #f0e0a8; border-radius: var(--radius);
-  font-size: 13px; color: #6b5a1e;
+  background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: var(--radius);
+  font-size: 13px; color: var(--warn-ink);
 }
 .banner code { font-family: var(--mono); font-size: 12px; }
 .boot { padding: 90px 26px; text-align: center; color: var(--ink-faint); }
@@ -214,7 +269,7 @@ td.rank { color: var(--ink-faint); font-variant-numeric: tabular-nums; width: 30
 @keyframes spin { to { transform: rotate(360deg); } }
 .boot.failed .boot-spin { display: none; }
 .boot-msg { font-size: 13px; margin: 0; }
-.boot.failed .boot-msg { color: #a3341f; max-width: 62ch; margin: 0 auto; line-height: 1.6; }
+.boot.failed .boot-msg { color: var(--error); max-width: 62ch; margin: 0 auto; line-height: 1.6; }
 @media (prefers-reduced-motion: reduce) {
   .boot-spin, .panel { animation: none; }
   .seg button, .chip { transition: none; }
@@ -278,8 +333,9 @@ td.rank { color: var(--ink-faint); font-variant-numeric: tabular-nums; width: 30
 
 @media (max-width: 920px) {
   .layout { flex-direction: column; }
-  .sidebar { width: 100%; flex-basis: auto; position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
-  .sidebar-scroll { height: auto; max-height: none; }
+  .layout::before { display: none; }
+  .sidebar { width: 100%; flex-basis: auto; position: static; border-bottom: 1px solid var(--line); }
+  .main { position: static; }
   .topbar-inner { flex-direction: column; align-items: flex-start; }
   .brand-side { align-items: flex-start; width: 100%; }
   .brand-meta { gap: 24px; }
@@ -299,6 +355,7 @@ td.rank { color: var(--ink-faint); font-variant-numeric: tabular-nums; width: 30
 @media print {
   .sidebar, .topnav, .tabs, .tool, .skip-link { display: none !important; }
   .layout { display: block; max-width: none; }
-  .main { padding: 0; }
+  .layout::before { display: none; }
+  .main { padding: 0; position: static; }
   .panel { animation: none; }
 }

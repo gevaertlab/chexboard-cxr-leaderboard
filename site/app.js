@@ -538,6 +538,9 @@ const BIBTEX = String.raw`@misc{xu2025benchmarking,
 function openAbout() {
   const d = $("#about");
   d.open = true;
+  // main just grew; re-pin before measuring the scroll target, since the
+  // ResizeObserver only catches up after this frame
+  pinColumns();
   d.scrollIntoView({ behavior: "smooth", block: "start" });
   // move focus too, or keyboard users stay on the nav button; preventScroll keeps the smooth scroll
   d.querySelector("summary").focus({ preventScroll: true });
@@ -548,8 +551,18 @@ function buildNav() {
   nav.innerHTML = `<button type="button" id="nav-about">About &amp; methods</button>` +
     (SITE.paper ? extLink(SITE.paper, "Paper") : "") +
     (SITE.code ? extLink(SITE.code, "Code") : "") +
-    extLink(SITE.repo, "GitHub");
+    extLink(SITE.repo, "GitHub") +
+    `<span class="theme-seg" role="group" aria-label="Colour theme">` +
+    `<button type="button" data-theme-pick="auto" title="Follow your system's light/dark setting">Auto</button>` +
+    `<button type="button" data-theme-pick="light">Light</button>` +
+    `<button type="button" data-theme-pick="dark">Dark</button></span>`;
   $("#nav-about").onclick = openAbout;
+  // theme.js owns the preference; without it the switch has nothing to drive
+  const picks = [...nav.querySelectorAll("[data-theme-pick]")];
+  if (!window.Theme) { nav.querySelector(".theme-seg").remove(); return; }
+  const syncPicks = () => picks.forEach((b) => b.setAttribute("aria-pressed", b.dataset.themePick === Theme.pref));
+  picks.forEach((b) => { b.onclick = () => { Theme.set(b.dataset.themePick); syncPicks(); }; });
+  syncPicks();
 }
 
 function buildAbout() {
@@ -670,6 +683,24 @@ function readHash() {
 // the visitor edits the URL or pastes a shared link into an open tab. Reloading
 // rebuilds every control from the new hash; the JSON comes back from cache.
 window.addEventListener("hashchange", () => location.reload());
+
+// charts.js reads its colours from the CSS theme at render time; when theme.js
+// switches between light and dark (the nav switch, the OS on Auto, or printing),
+// redraw. The table is styled by CSS alone, so it is left as is (and keeps focus).
+document.addEventListener("themechange", () => { if (booted && App.state.tab !== "table") render(); });
+
+// Sidebar and main are sticky (style.css). Keep each column's `top` at
+// min(0, window height - column height) so a column that fits stays pinned and a
+// taller one scrolls to its end before holding. Re-run whenever a column changes
+// height (tab switch, filters, About opened) or the window resizes.
+const columns = ["#sidebar", "#main"].map((s) => $(s));
+// clientHeight leaves out a horizontal scrollbar; ceil keeps a fractional last pixel in view
+function pinColumns() {
+  const vh = document.documentElement.clientHeight;
+  for (const c of columns) c.style.top = Math.min(0, vh - Math.ceil(c.getBoundingClientRect().height)) + "px";
+}
+if (window.ResizeObserver) { const ro = new ResizeObserver(pinColumns); columns.forEach((c) => ro.observe(c)); }
+window.addEventListener("resize", pinColumns);
 
 // .catch covers anything thrown after the fetch (a data shape the UI cannot build
 // from); the window listener above covers synchronous errors outside boot()
